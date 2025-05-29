@@ -148,16 +148,16 @@ end
 
 function Autoloot:GetLootSlotItemInfo(Index)
 
-	local _Icon, _Name, _Rarity, _Quality = GetLootSlotInfo(Index);
+	local _Icon, _Name, _Quantity, _CurrencyID, _Quality, _Locked, _IsQuestItem, _QuestID, _IsActive = GetLootSlotInfo(Index)
 	
 	Autoloot:Printf("--------"..Autoloot.Locale.Strings["ITEM_AT_INDEX"].."["..Index.."]--------");
 	Autoloot:Printf(Autoloot.Locale.Strings["NAME"].." [".._Name.."]");
 	Autoloot:Printf(Autoloot.Locale.Strings["ICON"].." [".._Icon.."]");
-	Autoloot:Printf(Autoloot.Locale.Strings["QUANTITY"].." [".._Rarity.."x]");
+	Autoloot:Printf(Autoloot.Locale.Strings["QUANTITY"].." [".._Quantity.."x]");
 	Autoloot:Printf(Autoloot.Locale.Strings["QUALITY"].." [".._Quality.."]");
 	Autoloot:Printf("------------------------------------");
 	
-	return GetLootSlotInfo(Index);
+	return _Icon, _Name, _Quantity, _Quality;
 end
 
 -------------------------------------------------------------------------------------------------------

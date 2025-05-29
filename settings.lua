@@ -22,7 +22,7 @@ Autoloot.Interface.Windows = {};
 	
 --//GLOBAL
 -------------------------------------------------------------------------------------------------------
-Autoloot.AddonName 						= "Autoloot2"
+Autoloot.AddonName 						= "Autoloot"
 Autoloot.Language 						= Autoloot.Locale.German;
 Autoloot.ForceReset 					= false;
 

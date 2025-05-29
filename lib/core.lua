@@ -105,13 +105,13 @@ end
 --//Gibt die Autoloot Version zurück
 
 function Autoloot:GetVersion()
-	return GetAddOnMetadata(Autoloot.AddonName, "Version") 
+	return C_AddOns.GetAddOnMetadata(Autoloot.AddonName, "Version")
 end
 
 -------------------------------------------------------------------------------------------------------
 
 function Autoloot:GetAuthor()
-	return GetAddOnMetadata(Autoloot.AddonName, "Author") 
+	return C_AddOns.GetAddOnMetadata(Autoloot.AddonName, "Author")
 end
 
 -------------------------------------------------------------------------------------------------------
