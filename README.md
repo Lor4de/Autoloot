@@ -1,0 +1,2 @@
+# Autoloot
+Automatic Loot Addon
