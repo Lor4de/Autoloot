@@ -1,0 +1,45 @@
+## Interface: 70300
+## Title: Autoloot 2
+## Notes: Sometimes every second counts ...
+## Version: 0.5
+## Author: Lorade [Aegwynn]
+## SavedVariablesPerCharacter: Preferences, Blacklist, Lootlog, ForceReset
+
+defines.lua
+settings.lua
+
+locales\deDE.lua
+locales\enGB.lua
+
+lib\core.lua
+lib\console.lua
+
+modules\loot.lua
+modules\blacklist.lua
+modules\lootlog.lua
+modules\autoroll.lua
+modules\autodisable.lua
+modules\minprice.lua
+modules\lootdisplay.lua
+
+console-synthax.lua
+
+lib\interface\frame.lua
+lib\interface\scrollframe.lua
+lib\interface\fontstring.lua
+lib\interface\button.lua
+lib\interface\checkbox.lua
+lib\interface\textbox.lua
+lib\interface\icon.lua
+lib\interface\minimapicon.lua
+
+interface.lua
+
+main.lua
+
+
+
+
+
+
+
