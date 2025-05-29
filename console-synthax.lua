@@ -334,10 +334,6 @@ Autoloot.Console:RegisterKeyword("About", (function()
 		
 		Autoloot.Console:Print(Autoloot.AddonName);
 		Autoloot.Console:Print("Created by "..Autoloot:GetAuthor());
-		Autoloot.Console:Print(" ");
-		Autoloot.Console:Print("Verlier ich Alles und geh hier mit Nichts raus, kann ich mir");
-		Autoloot.Console:Print("immernoch ins Gesicht schauen")
-		Autoloot.Console:Print(" ");
 		
 		Autoloot.Console:Print(Autoloot.Console.Spacer);
 	end))
