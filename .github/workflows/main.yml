@@ -1,45 +1,46 @@
 name: Create ZIP and Release
 
 on:
-  push:
-    tags:
-      - 'v*' # Dieser Workflow wird ausgelöst, wenn du einen Tag der Form vX.Y.Z pushst (z.B. v1.0.0)
-  workflow_dispatch: {} # Ermöglicht das manuelle Auslösen des Workflows
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Optional: Release version (e.g., 1.0.0)'
+        required: false
+        type: string
 
 jobs:
   build_and_release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Erforderlich, um den Release zu erstellen und Assets hochzuladen
+      contents: write
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4 # Clones dein Repository
+      uses: actions/checkout@v4
 
     - name: Get current date for filename
       id: date
-      run: echo "::set-output name=today::$(date +'%Y-%m-%d')" # Holt das aktuelle Datum für den Dateinamen
+      run: echo "::set-output name=today::$(date +'%Y-%m-%d')"
 
-    - name: Get Tag Name (if push is a tag)
-      id: get_tag
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo "::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/})" # Extrahiert den Tag-Namen
-
-    - name: Determine Release Name
-      id: release_name
+    - name: Determine Release Name and Tag
+      id: release_info
       run: |
-        if [[ -n "${{ steps.get_tag.outputs.tag }}" ]]; then
-          echo "::set-output name=name::Release ${{ steps.get_tag.outputs.tag }}"
+        if [[ -n "${{ github.event.inputs.release_version }}" ]]; then
+          echo "::set-output name=tag_name::v${{ github.event.inputs.release_version }}"
+          echo "::set-output name=release_name::Release v${{ github.event.inputs.release_version }}"
+          echo "::set-output name=zip_filename::v${{ github.event.inputs.release_version }}.zip"
         else
-          echo "::set-output name=name::Manual Release ${{ steps.date.outputs.today }}"
+          echo "::set-output name=tag_name::manual-release-${{ steps.date.outputs.today }}"
+          echo "::set-output name=release_name::Manual Release ${{ steps.date.outputs.today }}"
+          echo "::set-output name=zip_filename::${{ github.repository_name }}-repository-${{ steps.date.outputs.today }}.zip"
         fi
+        echo "TAG_NAME=${{ steps.release_info.outputs.tag_name }}" >> $GITHUB_ENV # Speichert den Tag-Namen für Create Release
+        echo "ZIP_FILENAME=${{ steps.release_info.outputs.zip_filename }}" >> $GITHUB_ENV # Speichert den ZIP-Dateinamen für Upload Asset
 
     - name: Create ZIP archive
       run: |
-        ZIP_FILENAME="${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && format('{0}.zip', steps.get_tag.outputs.tag) || format('{0}-repository-{1}.zip', github.repository_name, steps.date.outputs.today) }}"
-        echo "Creating $ZIP_FILENAME..."
-        zip -r "$ZIP_FILENAME" . -x ".git/*" ".github/workflows/*" # Packt das gesamte Repository (ohne .git und .github/workflows)
-        echo "ZIP_FILENAME=$ZIP_FILENAME" >> $GITHUB_ENV # Speichert den Dateinamen als Umgebungsvariable
+        echo "Creating ${{ env.ZIP_FILENAME }}..."
+        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
 
     - name: Create Release
       id: create_release
@@ -47,8 +48,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref_name }} # Der Tag, der den Workflow ausgelöst hat
-        release_name: ${{ steps.release_name.outputs.name }}
+        tag_name: ${{ env.TAG_NAME }} # Nutzt den dynamisch erzeugten Tag-Namen
+        release_name: ${{ steps.release_info.outputs.release_name }}
         draft: false
         prerelease: false
 
@@ -57,7 +58,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # URL zum Hochladen des Assets
-        asset_path: ./${{ env.ZIP_FILENAME }} # Pfad zur ZIP-Datei
-        asset_name: ${{ env.ZIP_FILENAME }} # Name des Assets
-        asset_content_type: application/zip # MIME-Typ
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ env.ZIP_FILENAME }}
+        asset_name: ${{ env.ZIP_FILENAME }}
+        asset_content_type: application/zip
