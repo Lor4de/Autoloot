@@ -3,43 +3,23 @@
 ## Notes: Sometimes every second counts ...
 ## Version: 0.5
 ## Author: Lorade
-## SavedVariablesPerCharacter: Preferences, Blacklist, Lootlog, ForceReset
+## SavedVariablesPerCharacter: AutolootDB
 
-defines.lua
-settings.lua
+Include.xml
+Lib\LoradeUI-1.0\LoradeUI-1.0.xml
+Lib\LoradeConsole-1.0\LoradeConsole-1.0.xml
 
-locales\deDE.lua
-locales\enGB.lua
+Init.lua
 
-lib\core.lua
-lib\console.lua
+Locales\Locale.xml
+Interface.lua
 
-modules\loot.lua
-modules\blacklist.lua
-modules\lootlog.lua
-modules\autoroll.lua
-modules\autodisable.lua
-modules\minprice.lua
-modules\lootdisplay.lua
+Modules\loot.lua
+Modules\blacklist.lua
+Modules\lootlog.lua
+Modules\autoroll.lua
+Modules\autodisable.lua
+Modules\minprice.lua
+Modules\lootdisplay.lua
 
-console-synthax.lua
-
-lib\interface\frame.lua
-lib\interface\scrollframe.lua
-lib\interface\fontstring.lua
-lib\interface\button.lua
-lib\interface\checkbox.lua
-lib\interface\textbox.lua
-lib\interface\icon.lua
-lib\interface\minimapicon.lua
-
-interface.lua
-
-main.lua
-
-
-
-
-
-
-
+Console.lua
