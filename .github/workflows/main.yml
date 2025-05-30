@@ -1,55 +1,57 @@
 name: Create ZIP and Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_version:
-        description: 'Optional: Release version (e.g., 1.0.0)'
-        required: false
-        type: string
+  workflow_dispatch: {} # Ermöglicht das manuelle Auslösen des Workflows
 
 jobs:
   build_and_release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Erforderlich, um den Release zu erstellen und Assets hochzuladen
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4 # Clones dein Repository
 
-    - name: Get current date for filename
-      id: date
-      run: echo "::set-output name=today::$(date +'%Y-%m-%d')"
-
-    - name: Determine Release Info
-      id: release_info # Hier werden die Outputs definiert
+    - name: Get info from TOC file
+      id: toc_info
       run: |
-        TAG_NAME=""
-        RELEASE_NAME=""
-        ZIP_FILENAME=""
-
-        if [[ -n "${{ github.event.inputs.release_version }}" ]]; then
-          TAG_NAME="v${{ github.event.inputs.release_version }}"
-          RELEASE_NAME="Release v${{ github.event.inputs.release_version }}"
-          ZIP_FILENAME="v${{ github.event.inputs.release_version }}.zip"
-        else
-          TAG_NAME="manual-release-${{ steps.date.outputs.today }}"
-          RELEASE_NAME="Manual Release ${{ steps.date.outputs.today }}"
-          ZIP_FILENAME="${{ github.repository_name }}-repository-${{ steps.date.outputs.today }}.zip"
+        if [ ! -f "TOC" ]; then
+          echo "::error file=TOC::TOC file not found in the repository root."
+          exit 1
         fi
+
+        TITLE=$(grep "## Title:" TOC | head -n 1 | awk -F': ' '{print $2}')
+        VERSION=$(grep "## Version:" TOC | head -n 1 | awk -F': ' '{print $2}')
+
+        if [ -z "$TITLE" ]; then
+          echo "::error file=TOC::'## Title:' not found in TOC file."
+          exit 1
+        fi
+        if [ -z "$VERSION" ]; then
+          echo "::error file=TOC::'## Version:' not found in TOC file."
+          exit 1
+        fi
+
+        # Bereinige den Titel für den Dateinamen (ersetze Leerzeichen durch Unterstriche, entferne Sonderzeichen)
+        CLEAN_TITLE=$(echo "$TITLE" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//')
+
+        TAG_NAME="$VERSION"
+        RELEASE_NAME="Release $TITLE $VERSION"
+        ZIP_FILENAME="${CLEAN_TITLE}_$VERSION.zip"
 
         echo "::set-output name=tag_name::$TAG_NAME"
         echo "::set-output name=release_name::$RELEASE_NAME"
         echo "::set-output name=zip_filename::$ZIP_FILENAME"
 
-        # Umgebungsvariablen für den späteren Zugriff
+        # Umgebungsvariable für den ZIP-Dateinamen, die in späteren Schritten verwendet wird
         echo "ZIP_FILENAME=$ZIP_FILENAME" >> $GITHUB_ENV
 
     - name: Create ZIP archive
       run: |
         echo "Creating ${{ env.ZIP_FILENAME }}..."
-        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
+        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*" "TOC" # Schließt auch die TOC-Datei aus
+        echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
 
     - name: Create Release
       id: create_release
@@ -57,8 +59,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.release_info.outputs.tag_name }} # WICHTIG: Hier direkt vom Output des vorherigen Steps
-        release_name: ${{ steps.release_info.outputs.release_name }}
+        tag_name: ${{ steps.toc_info.outputs.tag_name }} # Vom 'toc_info' Step bezogener Tag-Name
+        release_name: ${{ steps.toc_info.outputs.release_name }} # Vom 'toc_info' Step bezogener Release-Name
         draft: false
         prerelease: false
 
@@ -67,7 +69,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ env.ZIP_FILENAME }}
-        asset_name: ${{ env.ZIP_FILENAME }}
-        asset_content_type: application/zip
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # URL zum Hochladen des Assets
+        asset_path: ./${{ env.ZIP_FILENAME }} # Pfad zur ZIP-Datei
+        asset_name: ${{ env.ZIP_FILENAME }} # Name des Assets
+        asset_content_type: application/zip # MIME-Typ
