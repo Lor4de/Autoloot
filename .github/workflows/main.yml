@@ -43,8 +43,8 @@ jobs:
         CLEAN_TITLE=$(echo "$TITLE" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//')
         CLEAN_VERSION=$(echo "$VERSION" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//')
 
-        TAG_NAME="{CLEAN_VERSION}"
-        RELEASE_NAME="${CLEAN_TITLE}_${CLEAN_VERSION}"
+        TAG_NAME="$VERSION"
+        RELEASE_NAME="${CLEAN_TITLE}_$VERSION"
         ZIP_FILENAME="${CLEAN_TITLE}_${CLEAN_VERSION}.zip"
 
         echo "::set-output name=tag_name::$TAG_NAME"
@@ -53,9 +53,13 @@ jobs:
 
         # Umgebungsvariable für den ZIP-Dateinamen, die in späteren Schritten verwendet wird
         echo "ZIP_FILENAME=$ZIP_FILENAME" >> $GITHUB_ENV
+        echo "CLEAN_TITLE=${CLEAN_TITLE}" >> $GITHUB_ENV
 
     - name: Create ZIP archive
       run: |
+        echo "Creating Addon directory"
+        mkdir ${{ env.CLEAN_TITLE }}
+        cp -r * ${{ env.CLEAN_TITLE }}
         echo "Creating ${{ env.ZIP_FILENAME }}..."
         zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
         echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
