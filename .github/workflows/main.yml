@@ -58,7 +58,7 @@ jobs:
     - name: Create ZIP archive
       run: |
         echo "Creating ${{ env.ZIP_FILENAME }}..."
-        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
+        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/*"
         echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
 
     - name: Create Release
