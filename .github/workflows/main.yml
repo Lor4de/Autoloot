@@ -69,6 +69,12 @@ jobs:
         release_name: ${{ steps.toc_info.outputs.release_name }}
         draft: false
         prerelease: false
+    - name: Verify ZIP File Creation
+      run: |
+        if [ ! -f "${{ env.ZIP_FILENAME }}" ]; then
+        echo "::error::ZIP file not found. Ensure the file is created correctly."
+        exit 1
+        fi
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
