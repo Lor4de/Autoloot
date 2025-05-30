@@ -52,12 +52,10 @@ jobs:
 
         # Umgebungsvariable für den ZIP-Dateinamen, die in späteren Schritten verwendet wird
         echo "ZIP_FILENAME=$ZIP_FILENAME" >> $GITHUB_ENV
-        echo "TOC_FILE_PATH=$TOC_FILE" >> $GITHUB_ENV # Speichern des gefundenen Pfads zum Ausschließen
 
     - name: Create ZIP archive
       run: |
         echo "Creating ${{ env.ZIP_FILENAME }}..."
-        # Schließt die gefundene TOC-Datei (welchen Namen sie auch immer hat) aus
         zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
         echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
 
@@ -78,6 +76,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ env.ZIP_FILENAME }}
+        asset_path: ${{ env.ZIP_FILENAME }}
         asset_name: ${{ env.ZIP_FILENAME }}
         asset_content_type: application/zip
