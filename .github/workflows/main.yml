@@ -58,7 +58,7 @@ jobs:
       run: |
         echo "Creating ${{ env.ZIP_FILENAME }}..."
         # Schließt die gefundene TOC-Datei (welchen Namen sie auch immer hat) aus
-        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*""
+        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
         echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
 
     - name: Create Release
