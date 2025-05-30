@@ -43,7 +43,7 @@ jobs:
         CLEAN_TITLE=$(echo "$TITLE" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//')
 
         TAG_NAME="$VERSION"
-        RELEASE_NAME="Release $TITLE $VERSION"
+        RELEASE_NAME="${CLEAN_TITLE}_$VERSION"
         ZIP_FILENAME="${CLEAN_TITLE}_$VERSION.zip"
 
         echo "::set-output name=tag_name::$TAG_NAME"
@@ -58,7 +58,7 @@ jobs:
       run: |
         echo "Creating ${{ env.ZIP_FILENAME }}..."
         # Schließt die gefundene TOC-Datei (welchen Namen sie auch immer hat) aus
-        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*" "${{ env.TOC_FILE_PATH }}"
+        zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*""
         echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
 
     - name: Create Release
