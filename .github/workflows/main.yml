@@ -59,7 +59,7 @@ jobs:
       run: |
         echo "Creating Addon directory"
         mkdir ${{ env.CLEAN_TITLE }}
-        cp -r * ${{ env.CLEAN_TITLE }}
+        cp -r . ${{ env.CLEAN_TITLE }}
         echo "Creating ${{ env.ZIP_FILENAME }}..."
         zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/workflows/*"
         echo "ZIP_FILENAME=${{ env.ZIP_FILENAME }}" >> $GITHUB_ENV # Doppelt, um sicherzustellen
