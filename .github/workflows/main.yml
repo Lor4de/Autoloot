@@ -5,7 +5,7 @@ on:
     inputs:
       release_version:
         description: 'Optional: Release version (e.g., 1.0.0)'
-        required: true
+        required: false
         type: string
 
 jobs:
@@ -22,20 +22,29 @@ jobs:
       id: date
       run: echo "::set-output name=today::$(date +'%Y-%m-%d')"
 
-    - name: Determine Release Name and Tag
-      id: release_info
+    - name: Determine Release Info
+      id: release_info # Hier werden die Outputs definiert
       run: |
+        TAG_NAME=""
+        RELEASE_NAME=""
+        ZIP_FILENAME=""
+
         if [[ -n "${{ github.event.inputs.release_version }}" ]]; then
-          echo "::set-output name=tag_name::v${{ github.event.inputs.release_version }}"
-          echo "::set-output name=release_name::Release v${{ github.event.inputs.release_version }}"
-          echo "::set-output name=zip_filename::v${{ github.event.inputs.release_version }}.zip"
+          TAG_NAME="v${{ github.event.inputs.release_version }}"
+          RELEASE_NAME="Release v${{ github.event.inputs.release_version }}"
+          ZIP_FILENAME="v${{ github.event.inputs.release_version }}.zip"
         else
-          echo "::set-output name=tag_name::manual-release-${{ steps.date.outputs.today }}"
-          echo "::set-output name=release_name::Manual Release ${{ steps.date.outputs.today }}"
-          echo "::set-output name=zip_filename::${{ github.repository_name }}-repository-${{ steps.date.outputs.today }}.zip"
+          TAG_NAME="manual-release-${{ steps.date.outputs.today }}"
+          RELEASE_NAME="Manual Release ${{ steps.date.outputs.today }}"
+          ZIP_FILENAME="${{ github.repository_name }}-repository-${{ steps.date.outputs.today }}.zip"
         fi
-        echo "TAG_NAME=${{ steps.release_info.outputs.tag_name }}" >> $GITHUB_ENV # Speichert den Tag-Namen für Create Release
-        echo "ZIP_FILENAME=${{ steps.release_info.outputs.zip_filename }}" >> $GITHUB_ENV # Speichert den ZIP-Dateinamen für Upload Asset
+
+        echo "::set-output name=tag_name::$TAG_NAME"
+        echo "::set-output name=release_name::$RELEASE_NAME"
+        echo "::set-output name=zip_filename::$ZIP_FILENAME"
+
+        # Umgebungsvariablen für den späteren Zugriff
+        echo "ZIP_FILENAME=$ZIP_FILENAME" >> $GITHUB_ENV
 
     - name: Create ZIP archive
       run: |
@@ -48,7 +57,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.TAG_NAME }} # Nutzt den dynamisch erzeugten Tag-Namen
+        tag_name: ${{ steps.release_info.outputs.tag_name }} # WICHTIG: Hier direkt vom Output des vorherigen Steps
         release_name: ${{ steps.release_info.outputs.release_name }}
         draft: false
         prerelease: false
