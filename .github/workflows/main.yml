@@ -43,9 +43,9 @@ jobs:
         CLEAN_TITLE=$(echo "$TITLE" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//')
         CLEAN_VERSION=$(echo "$VERSION" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//')
 
-        TAG_NAME="$VERSION"
+        TAG_NAME="${CLEAN_TITLE}-$VERSION"
         RELEASE_NAME="${CLEAN_TITLE}_$VERSION"
-        ZIP_FILENAME="${CLEAN_TITLE}_${CLEAN_VERSION}.zip"
+        ZIP_FILENAME="${CLEAN_TITLE}.zip"
 
         echo "::set-output name=tag_name::$TAG_NAME"
         echo "::set-output name=release_name::$RELEASE_NAME"
